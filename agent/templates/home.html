@@ -1,0 +1,50 @@
+{%extends 'base.html'%}
+{% load static %}
+
+
+{% block content %}
+    {{block.super}}
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <div class="burner"
+        style="background-image:url('http://ccn-ecp.or.ke/nairobi_template/images/nairobi-004.jpg');background-size: cover; height:200px; text-align: center;">
+        <a href="{% url 'create_building'%}" class="btn btn-primary btn-sm" style="margin-top: 5%;">Add Building</a>
+        <a href="{% url 'create_house'%}" class="btn btn-primary btn-sm"style="margin-top: 5%;">Add House</a>
+        <a href="{% url 'add_user'%}" class="btn btn-primary btn-sm"style="margin-top: 5%;">Add Tenants</a>
+    </div>
+    <div class="container" >
+        <div class="row">            
+            <table class="table">
+                <thead class="default-color white-text">
+                    <tr>
+                        <th scope="col">Building</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Street</th>
+                        <th scope="col">Plot</th>
+                        <th scope="col">Houses</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if building %}
+                    {% for rent in building %}
+                    <tr> 
+                        <td>{{rent.building_name}}</td>
+                        <td>{{rent.building_location}}</td>
+                        <td>{{rent.street}}</td>
+                        <td>{{rent.plot_number}}</td>
+                        <td>{{rent.house}}</td>
+                        
+                        <td><a href="{% url 'view_houses' rent.building_name%}" class="btn btn-primary btn-sm">Tenants</a></td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr><td>No user exists</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{form}}
+{% endblock %}
+
