@@ -17,7 +17,7 @@
                     <th scope="col">Type</th>
                     <th scope="col">Plot</th>
                     <th scope="col">Status</th>
-
+                    <th scope="col"></th>
                     <th scope="col"></th>
                 </tr>
             </thead>
@@ -31,12 +31,10 @@
                 <td style=" color: green ">Vacant</td>
                 {% else %}
                 <td style=" color: green ">Occupied</td>
-                {% for user in tenant %}
-                {{ user.first_name }}
-
-                {% endfor %}
                 {% endif %}
-
+                <td><a href="{% url 'add_user'%}" class="btn btn-primary btn-sm">Add Tenant</a></td>
+              
+              
             </tr>
 
     </div>

@@ -9,8 +9,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 admin.site.register(Building)
 admin.site.register(House)
-admin.site.register(tests)
-
+admin.site.register(Landlord)
 
 class UserCreationForm(forms.ModelForm):
     username = forms.CharField(max_length =30,label='Username')
@@ -42,12 +41,12 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'first_name', 'last_name', 'id_number','house', 'house_number','image','phone_number','gender','tenant','password1', 'password2','username')}
+            'fields': ('email', 'first_name', 'last_name','password1', 'password2','username')}
         ),
     )
 
- 
 
 
 
-admin.site.register(User, UserAdmin)
+
+admin.site.register(User, UserAdmin,)

@@ -1,26 +1,28 @@
 from django.shortcuts import render, redirect,get_object_or_404
 from django.http  import HttpResponse, HttpResponseRedirect, Http404
 import datetime as dt
-from .models import User, Building, House
+from .models import *
 from .forms import CreateUserForm, UploadPicForm, CreateBuildingForm,CreateHouseForm
 from django_daraja.mpesa.core import MpesaClient
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
+from django.views.generic.edit import CreateView
+
 User = get_user_model()
 # Create your views here.
 
 @login_required(login_url='/accounts/login')
 def home(request):
      user_type = get_object_or_404(User,pk=request.user.id)
-     if not request.user.is_superuser :
-           
-          user=User.objects.all()
+     try:
+          landlord= request.user.landlord
+          buildings=landlord.buildings.all()
+          return render(request, 'home.html',{"buildings":buildings})
+     except Landlord.DoesNotExist:           
+          user=request.user
           return render(request, 'pay.html',{'user':user} )
-          
-     else:
-          building=Building.objects.all()
-          return render(request, 'home.html',{"building":building})
-                 
+                         
           
 
 def index(request,phone_number):
@@ -43,10 +45,8 @@ def create_user(request):
      form=CreateUserForm()
      error=False
      if request.method == 'POST':
-          print('===================================posted')
           form=CreateUserForm(request.POST)
           if form.is_valid():
-               print("===========not")
                if User.objects.filter(email=form.cleaned_data['email']).first():
                     error="User with email already exists"
                else:
@@ -55,6 +55,7 @@ def create_user(request):
                if User.objects.filter(phone_number=form.cleaned_data['phone_number']).first():
                     error="User with this Phone Number already exists"
                else:
+                    tenant.house_name=get_object_or_404()
                     user = form.save()
                
                     return redirect('home')
@@ -81,24 +82,32 @@ def edit_user(request,id):
 def create_building(request):
      form=CreateBuildingForm()
      error=False
+     land= get_object_or_404(Landlord,user=request.user.id)
      if request.method == 'POST':
           form=CreateBuildingForm(request.POST)
           if form.is_valid():
                if Building.objects.filter(building_name=form.cleaned_data['building_name']).first():
                     error="Building with similar name already exists"
                else:
-                    building = form.save()
+                    building = form.save(commit=False)
+                    building.owner=get_object_or_404(Landlord,user=request.user)
+                    building.save()
                     return redirect('home')
      return render(request, "building_reg.html",{"form":form,"error":error})
 
+     # def form_valid(self, form):
+     #    form.instance.owner = self.request.user
+     #    return super().form_valid(form)
 
 def create_house(request):
-     form=CreateHouseForm()
      error=False
+     landlord=request.user.landlord
+     form=CreateHouseForm(landlord=landlord)
      if request.method == 'POST':
-          form=CreateHouseForm(request.POST)
+          form=CreateHouseForm(request.POST,landlord=landlord)
           if form.is_valid():
-               if House.objects.filter(name=form.cleaned_data['name']).first():
+               print(form.cleaned_data['building'])
+               if House.objects.filter(name=form.cleaned_data['name'],building=form.cleaned_data['building']).first():
                     error="Building with similar name already exists"
                else:
                     house = form.save()

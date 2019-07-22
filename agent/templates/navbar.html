@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark default-color">
+<nav class="navbar navbar-expand-lg navbar-dark blue-gradient">
     <a class="navbar-brand" href="#">Admin</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
       aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -18,9 +18,10 @@
       </ul>
       <div class="navbar-nav ml-auto">
         {% if user.is_authenticated %}
-        <ul>
+        
           <li class="dropdown">
-            <a href="#" class="dropdown-toggle btn btn-default" data-toggle="dropdown" role="button"
+
+            <a href="#" class="dropdown-toggle btn btn-blue-gradient" data-toggle="dropdown" role="button"
               aria-expanded="false">Account
               <span class="caret"></span>
             </a>
@@ -39,7 +40,7 @@
         </ul>
         {% else %}
         <li>
-          <a class='btn btn-default' href="/accounts/login">Login</a>
+          <a class='btn btn-blue-gradient' href="/accounts/login">Login</a>
         </li>
       
         {% endif %}
