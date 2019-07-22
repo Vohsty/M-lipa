@@ -23,9 +23,9 @@ class Tenant(models.Model):
     tenant_hash=models.CharField(max_length=255,unique=True)
     first_name = models.CharField(max_length =30)
     last_name = models.CharField(max_length =30)
-    email = models.EmailField()
-    id_number= models.CharField(max_length =30)
-    phone_number = models.CharField(max_length = 10)
+    email = models.EmailField(unique=True)
+    id_number= models.CharField(max_length =30,unique=True)
+    phone_number = models.CharField(max_length = 10,unique=True)
     image = models.ImageField(upload_to='images/')
     post_date = models.DateTimeField(auto_now_add=True)
     gender_choices = [('M', 'Male'), ('F', 'Female')]

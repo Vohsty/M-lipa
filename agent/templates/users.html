@@ -32,7 +32,7 @@
                 {% else %}
                 <td style=" color: green ">Occupied</td>
                 {% endif %}
-                <td><a href="{% url 'add_user'%}" class="btn btn-primary btn-sm">Add Tenant</a></td>
+                <td><a href="{% url 'add_user' room.id %}" class="btn btn-primary btn-sm">Add Tenant</a></td>
               
               
             </tr>

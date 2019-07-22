@@ -16,7 +16,7 @@
             <p>{{ error }}</p>
         {% endif %}
 
-        <form action="/accounts/register/" method="POST">
+        <form action="{% url 'add_user' house_id %}" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {% bootstrap_form form layout='inline'%}
             <button type="submit" class="btn btn-primary">Submit</button>

@@ -8,7 +8,7 @@ class CreateUserForm(forms.ModelForm):
     class Meta:
         model = Tenant
         # fields = ['first_name','last_name','email','id_number','house','house_number','phone_number','image','tenant','gender',]
-        exclude=['user','tenant_hash']
+        exclude=['user','tenant_hash','house_name']
 
 class UploadPicForm(forms.ModelForm):
 

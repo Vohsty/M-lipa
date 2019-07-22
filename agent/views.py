@@ -4,10 +4,12 @@ import datetime as dt
 from .models import *
 from .forms import CreateUserForm, UploadPicForm, CreateBuildingForm,CreateHouseForm
 from django_daraja.mpesa.core import MpesaClient
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
 from django.views.generic.edit import CreateView
+import json
 
 User = get_user_model()
 # Create your views here.
@@ -24,42 +26,53 @@ def home(request):
           return render(request, 'pay.html',{'user':user} )
                          
           
+@login_required(login_url='/accounts/login')
+def pay_with_mpesa(request):
+     cl = MpesaClient()
+     tenant=request.user.tenant
+     phone_number = tenant.phone_number
+     amount = 1
+     account_reference = 'reference'
+     transaction_desc = 'Description'
+     callback_url = ' https://25c1e820.ngrok.io/magent_callback'
+     response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
+     print(response.text)
+     return redirect('home')
 
-def index(request,phone_number):
-    cl = MpesaClient()
-    # Use a Safaricom phone number that you have access to, for you to be able to view the prompt.
-    print(phone_number)
-    phone_number = phone_number
-    amount = 1
-    account_reference = 'reference'
-    transaction_desc = 'Description'
-    callback_url = 'http://4cc0ca50.ngrok.io/'
-    response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
-    return HttpResponse(response.text)
-
+@csrf_exempt
 def stk_push_callback(request):
-        data = request.body
-        # You can do whatever you want with the notification received from MPESA here.
 
-def create_user(request):
+        data = request.body
+        json_data=json.loads(data.decode())
+        phone=json_data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][4]["Value"]
+        print(phone)
+        return HttpResponse("success")
+
+def create_user(request,house_id):
      form=CreateUserForm()
      error=False
+     house=get_object_or_404(House,id=int(house_id))
      if request.method == 'POST':
-          form=CreateUserForm(request.POST)
+          form=CreateUserForm(request.POST,request.FILES)
+          
           if form.is_valid():
-               if User.objects.filter(email=form.cleaned_data['email']).first():
+               print("valid")
+               if Tenant.objects.filter(email=form.cleaned_data["email"] or User.objects.filter(username=form.cleaned_data["email"])):
                     error="User with email already exists"
-               else:
-                    user = form.save()
-                    
-               if User.objects.filter(phone_number=form.cleaned_data['phone_number']).first():
+               if Tenant.objects.filter(phone_number=form.cleaned_data['phone_number']).first():
                     error="User with this Phone Number already exists"
-               else:
-                    tenant.house_name=get_object_or_404()
-                    user = form.save()
-               
+               user=User(username=form.cleaned_data["email"])
+               user.set_password("password123")
+               user.save()
+               tenant=form.save(commit=False)
+               tenant.house_name=house
+               tenant.user=user
+               tenant.save()
+               if error==False:
                     return redirect('home')
-     return render(request, "registration.html",{"form":form,"error":error})   
+          else:
+               print(form.errors)
+     return render(request, "registration.html",{"form":form,"error":error,"house_id":house_id})   
 
 
 
