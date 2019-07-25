@@ -3,6 +3,7 @@ import datetime as dt
 from django.contrib.auth.models import User
 import os
 import binascii
+import random
 
 # Create your models here.
 
@@ -20,12 +21,13 @@ class User(AbstractUser):
 
 class Tenant(models.Model):
     user=models.OneToOneField(User, verbose_name=(""), on_delete=models.CASCADE, related_name="tenant")
-    tenant_hash=models.CharField(max_length=255,unique=True)
+    # tenant_hash=models.CharField(max_length=255,unique=True)
     first_name = models.CharField(max_length =30)
     last_name = models.CharField(max_length =30)
     email = models.EmailField(unique=True)
     id_number= models.CharField(max_length =30,unique=True)
     phone_number = models.CharField(max_length = 10,unique=True)
+    pin = models.CharField(max_length = 5,unique=True,null=True)
     image = models.ImageField(upload_to='images/')
     post_date = models.DateTimeField(auto_now_add=True)
     gender_choices = [('M', 'Male'), ('F', 'Female')]
@@ -38,6 +40,9 @@ class Tenant(models.Model):
     house_name = models.OneToOneField('House', on_delete=models.CASCADE, null=True)
     def __str__(self):
         return self.first_name
+
+    
+
 
     # def generate_key(self):
     #     key=binascii.hexlify(os.urandom(32)).decode()

@@ -1,0 +1,9 @@
+
+
+.vscode/
+### Django ###
+*.pyc
+__pycache__/
+
+.env
+virtual/

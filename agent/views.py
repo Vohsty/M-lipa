@@ -8,7 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
-from django.views.generic.edit import CreateView
+from django.core.mail import EmailMessage
+from django.contrib.sites.shortcuts import get_current_site
 import json
 
 User = get_user_model()
@@ -31,19 +32,30 @@ def pay_with_mpesa(request):
      cl = MpesaClient()
      tenant=request.user.tenant
      phone_number = tenant.phone_number
-     amount = 1
+     amount = 70
      account_reference = 'reference'
      transaction_desc = 'Description'
-     callback_url = ' https://25c1e820.ngrok.io/magent_callback'
+     callback_url = 'https://0bdb7a03.ngrok.io/magent_callback'
      response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
      print(response.text)
      return redirect('home')
+
+
+@login_required(login_url='/accounts/login')
+def welcome_email(request):
+     tenant=request.user.tenant
+     email= tenant.email
+     name=tenant.first_name
 
 @csrf_exempt
 def stk_push_callback(request):
 
         data = request.body
+        print("wacha ufala")
         json_data=json.loads(data.decode())
+       
+        trans_code=json_data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][1]["Value"]
+        time=json_data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][3]["Value"]
         phone=json_data["Body"]["stkCallback"]["CallbackMetadata"]["Item"][4]["Value"]
         print(phone)
         return HttpResponse("success")
@@ -62,12 +74,16 @@ def create_user(request,house_id):
                if Tenant.objects.filter(phone_number=form.cleaned_data['phone_number']).first():
                     error="User with this Phone Number already exists"
                user=User(username=form.cleaned_data["email"])
-               user.set_password("password123")
+
                user.save()
+
                tenant=form.save(commit=False)
                tenant.house_name=house
                tenant.user=user
                tenant.save()
+              
+
+
                if error==False:
                     return redirect('home')
           else:
@@ -140,7 +156,7 @@ def view_houses(request, building_name):
 @login_required(login_url='/accounts/login')
 def view_tenant(request, name):
      try:
-       user = User.objects.get(house_number=name)
+       user = Tenant.objects.get(house_name=name)
        print(user.image)
 
      except User.DoesNotExist:
